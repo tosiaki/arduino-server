@@ -4,10 +4,10 @@ var app = express();
 
 console.log(process.env.PORT);
 //console.log(app.get('port'));
-var server = app.listen(app.get('port'), function() {
-	console.log("Express server listening on port " + app.get('port'));
+var server = app..use((req, res) => res.sendFile(INDEX) ).listen(PORT, function() {
+	console.log("Express server listening on port " + PORT);
 }); //require('http').createServer(app);
-var io = require('socket.io')(server);
+var wss = new SocketServer({ server });
 
 var path = require('path');
 var cookieParser = require('cookie-parser');
@@ -53,12 +53,12 @@ app.use(function(err, req, res, next) {
 
 module.exports = app;
 
-io.sockets.on('connection', function(socket){
+wss.on('connection', function(socket){
 	console.log('a user connected');
 	socket.on('arduino-data', function(data) {
 		currentdata=data
 		//console.log(currentdata);
-		io.emit('update-data',currentdata)
+		wss.emit('update-data',currentdata)
 	})
 })
 
