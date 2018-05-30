@@ -1,0 +1,20 @@
+{
+  "name": "arduino-server",
+  "description": "A server for receiving arduino signals",
+  "main": "app.js",
+  "authors": [
+    "Tosiaki <aworldwithoutsnowflakes1@gmail.com>"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/tosiaki/arduino-server",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "^3.3.1"
+  }
+}
