@@ -255,7 +255,7 @@ io.on('connection', function(socket){
 
 		// Start calculating total scores
 		if(bpmPresent+gsrPresent) {
-			totalStressScore=100*((bpmPresent ? Math.max((beatsperminute-60)*10,0) : 0 )+ (gsrPresent ? (1 - relativeGSRvalue)*(maxGSR - minGSR) : 0)*3.5)/(1000*bpmPresent+(gsrPresent ? (maxGSR - minGSR)*3.5*gsrPresent : 0));
+			totalStressScore=100*((bpmPresent ? Math.max((beatsperminute-60)*10,0) : 0 )+ (gsrPresent ? (1 - relativeGSRvalue)*(maxGSR - minGSR) : 0)*4)/(1000*bpmPresent+(gsrPresent ? (maxGSR - minGSR)*4*gsrPresent : 0));
 		}
 		else {
 			totalStressScore=NaN;

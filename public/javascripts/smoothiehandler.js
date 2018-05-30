@@ -84,6 +84,9 @@ socket.on('update-data', function(data) {
 		if(noHeartRate && noGSR) {
 			document.getElementById("disconnection").innerHTML = 'Device disconnected';
 		}
+		else {
+			document.getElementById("stresslevel").innerHTML = 'Currently in standby';
+		}
 	}
 
 	
