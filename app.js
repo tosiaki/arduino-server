@@ -2,10 +2,11 @@ var createError = require('http-errors');
 var express = require('express');
 var app = express();
 
-console.log(process.env.PORT);
-//console.log(app.get('port'));
-var server = app.listen(process.env.PORT, function() {
-	console.log("Express server listening on port " + process.env.PORT);
+//console.log(process.env.PORT);
+app.set('port', process.env.PORT || 3000)
+console.log(app.get('port'));
+var server = app.listen(app.get('port'), function() {
+	console.log("Express server listening on port " + app.get('port'));
 }); //require('http').createServer(app);
 var io = require('socket.io')(server);
 

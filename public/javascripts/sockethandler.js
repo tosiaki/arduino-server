@@ -1,5 +1,5 @@
 $(function () {
-	var socket = io('http://localhost:4200');
+	var socket = io('/');
 	socket.on('update-data', function(data) {
 		console.log(data);
 	});
