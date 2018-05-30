@@ -4,7 +4,7 @@ var app = express();
 
 console.log(process.env.PORT);
 //console.log(app.get('port'));
-var server = app..use((req, res) => res.sendFile(INDEX) ).listen(PORT, function() {
+var server = app.use((req, res) => res.sendFile(INDEX) ).listen(PORT, function() {
 	console.log("Express server listening on port " + PORT);
 }); //require('http').createServer(app);
 var wss = new SocketServer({ server });
