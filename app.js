@@ -128,10 +128,9 @@ io.on('connection', function(socket){
 		//console.log(values);
 		//console.log(values.length + ' , ' + average + ' , ' + standardDeviation);
 		if(detectedRise==0) {
-			if(currentData > average + standardDeviation && standardDeviation > deviationThreshold) {
+			if(currentData > average + 1.6*standardDeviation && standardDeviation > deviationThreshold) {
 				detectedRise=1;
 				riseTime=Date.now();
-				//console.log('Rise detected')
 			}
 		}
 		else {
