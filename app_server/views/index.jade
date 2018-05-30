@@ -2,7 +2,18 @@ extends layout
 
 block content
   h1= title
-  p Welcome to #{title}
+  h3 Sensor data
   canvas#sensorsignal(style='width:100%; height:200px')
+  h3 Beats per minute
   canvas#bpm(style='width:100%; height:200px')
   #bpmindicator
+  h3 Stress indicator
+  .lightcontainer Normal/low stress
+    span#green.light
+  .lightcontainer Medium stress
+    span#yellow.light
+  .lightcontainer High stress
+    span#red.light
+  h3 Status
+  #stresslevel
+  #disconnection

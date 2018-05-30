@@ -6,10 +6,34 @@ socket.on('update-data', function(data) {
 	sensordata.append(new Date().getTime(),data.sensor);
 	beatsperminute.append(new Date().getTime(),data.bpm);
 	if (data.bpm>25 && data.bpm != NaN) {
-		document.getElementById("bpmindicator").innerHTML = 'Your current heart rate is ' + data.bpm + ' beats per minute.';
+		document.getElementById("bpmindicator").innerHTML = 'Your current heart rate is ' + Math.round(data.bpm) + ' beats per minute.';
+		document.getElementById("disconnection").innerHTML = '';
+		if (data.bpm>120) {
+			document.getElementById("stresslevel").innerHTML = 'High stress';
+			document.getElementById("green").style['background-color']='#bbb';
+			document.getElementById("yellow").style['background-color']='#bbb';
+			document.getElementById("red").style['background-color']='#fbb';
+		}
+		else if (data.bpm>90) {
+			document.getElementById("stresslevel").innerHTML = 'Medium stress';
+			document.getElementById("green").style['background-color']='#bbb';
+			document.getElementById("yellow").style['background-color']='#ffb';
+			document.getElementById("red").style['background-color']='#bbb';
+		}
+		else {
+			document.getElementById("stresslevel").innerHTML = 'Normal or low stress';
+			document.getElementById("green").style['background-color']='#bfb';
+			document.getElementById("yellow").style['background-color']='#bbb';
+			document.getElementById("red").style['background-color']='#bbb';
+		}
 	}
 	else {
 		document.getElementById("bpmindicator").innerHTML = 'The device is disconnected.';
+		document.getElementById("stresslevel").innerHTML = '';
+		document.getElementById("disconnection").innerHTML = 'Device disconnected';
+		document.getElementById("green").style['background-color']='#bbb';
+		document.getElementById("yellow").style['background-color']='#bbb';
+		document.getElementById("red").style['background-color']='#bbb';
 	}
 	//console.log(data);
 });

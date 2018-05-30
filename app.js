@@ -96,7 +96,7 @@ io.on('connection', function(socket){
 			i = heartBeatTimes.indexOf(Math.min.apply(null, heartBeatTimes));
 			heartbeats.splice(i,1)
 		}
-		if(heartbeats.length>1) {
+		if(heartbeats.length>3) {
 			heartBeatIntervals=heartbeats.map(heartbeats => heartbeats.interval);
 			for (i = 0; i < heartBeatIntervals.length; i++) {
 				if (heartBeatIntervals[i] == NaN) {
@@ -131,7 +131,7 @@ io.on('connection', function(socket){
 			if(currentData > average + standardDeviation && standardDeviation > deviationThreshold) {
 				detectedRise=1;
 				riseTime=Date.now();
-				console.log('Rise detected')
+				//console.log('Rise detected')
 			}
 		}
 		else {
@@ -143,7 +143,7 @@ io.on('connection', function(socket){
 					}
 					heartbeats.push({time: Date.now(), interval: intervalTime});
 					previousbeat=Date.now();
-					console.log(heartbeats);
+					//console.log(heartbeats);
 				}
 				detectedRise=0;
 			}
