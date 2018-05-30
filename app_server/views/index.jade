@@ -2,6 +2,19 @@ extends layout
 
 block content
   h1= title
+  h3 Stress indicator
+  .lightcontainer Normal/low stress
+    span#green.light
+  .lightcontainer Medium stress
+    span#yellow.light
+  .lightcontainer High stress
+    span#red.light
+  h3 Status
+  #stresslevel
+  #disconnection
+  h3 Stress level score
+  canvas#stress(style='width:100%; height:200px')
+  #stressindicator
   h3 Pulse monitor
   canvas#sensorsignal(style='width:100%; height:200px')
   h3 Beats per minute
@@ -14,16 +27,3 @@ block content
   canvas#gsr(style='width:100%; height:200px')
   #gsrindicator
   #relativeGSRindicator
-  h3 Stress level score
-  canvas#stress(style='width:100%; height:200px')
-  #stressindicator
-  h3 Stress indicator
-  .lightcontainer Normal/low stress
-    span#green.light
-  .lightcontainer Medium stress
-    span#yellow.light
-  .lightcontainer High stress
-    span#red.light
-  h3 Status
-  #stresslevel
-  #disconnection

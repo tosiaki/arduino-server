@@ -12,35 +12,17 @@ socket.on('update-data', function(data) {
 	galvanicskinresponse.append(new Date().getTime(),data.gsr);
 	stresslevel.append(new Date().getTime(),data.stress)
 	//console.log(data.stress);
+
+	var noHeartRate=0;
+	var noGSR=0;
+	//console.log(data.stress);
 	if (data.bpm>25 && data.bpm != NaN) {
 		document.getElementById("bpmindicator").innerHTML = 'Your current heart rate is ' + Math.round(data.bpm) + ' beats per minute.';
-		document.getElementById("disconnection").innerHTML = '';
-		if (data.bpm>120) {
-			document.getElementById("stresslevel").innerHTML = 'High stress';
-			document.getElementById("green").style['background-color']='#bbb';
-			document.getElementById("yellow").style['background-color']='#bbb';
-			document.getElementById("red").style['background-color']='#fbb';
-		}
-		else if (data.bpm>90) {
-			document.getElementById("stresslevel").innerHTML = 'Medium stress';
-			document.getElementById("green").style['background-color']='#bbb';
-			document.getElementById("yellow").style['background-color']='#ffb';
-			document.getElementById("red").style['background-color']='#bbb';
-		}
-		else {
-			document.getElementById("stresslevel").innerHTML = 'Normal or low stress';
-			document.getElementById("green").style['background-color']='#bfb';
-			document.getElementById("yellow").style['background-color']='#bbb';
-			document.getElementById("red").style['background-color']='#bbb';
-		}
 	}
 	else {
 		document.getElementById("bpmindicator").innerHTML = 'No BPM signal.';
 		document.getElementById("stresslevel").innerHTML = '';
-		document.getElementById("disconnection").innerHTML = 'Device disconnected';
-		document.getElementById("green").style['background-color']='#bbb';
-		document.getElementById("yellow").style['background-color']='#bbb';
-		document.getElementById("red").style['background-color']='#bbb';
+		noHeartRate=1;
 	}
 	if(data.hrv) {
 		document.getElementById("hrvindicator").innerHTML = 'Your current heart rate variability is ' + Math.round(data.hrv) + ' beats per minute.';
@@ -69,13 +51,39 @@ socket.on('update-data', function(data) {
 	}
 	else {
 		document.getElementById("relativeGSRindicator").innerHTML = "The GSR is not currently securely connected.";
+		noGSR=1;
 	}
 
+	document.getElementById("disconnection").innerHTML = '';
 	if(data.stress !== null) {
 		document.getElementById("stressindicator").innerHTML = "The stress level score is currently " + Math.round(data.stress) + ".";
+		if (data.stress>60) {
+			document.getElementById("stresslevel").innerHTML = 'High stress';
+			document.getElementById("green").style['background-color']='#bbb';
+			document.getElementById("yellow").style['background-color']='#bbb';
+			document.getElementById("red").style['background-color']='#fbb';
+		}
+		else if (data.stress>30) {
+			document.getElementById("stresslevel").innerHTML = 'Medium stress';
+			document.getElementById("green").style['background-color']='#bbb';
+			document.getElementById("yellow").style['background-color']='#ffb';
+			document.getElementById("red").style['background-color']='#bbb';
+		}
+		else {
+			document.getElementById("stresslevel").innerHTML = 'Normal or low stress';
+			document.getElementById("green").style['background-color']='#bfb';
+			document.getElementById("yellow").style['background-color']='#bbb';
+			document.getElementById("red").style['background-color']='#bbb';
+		}
 	}
 	else {
 		document.getElementById("stressindicator").innerHTML = "Stress level score is not available.";
+		document.getElementById("green").style['background-color']='#bbb';
+		document.getElementById("yellow").style['background-color']='#bbb';
+		document.getElementById("red").style['background-color']='#bbb';
+		if(noHeartRate && noGSR) {
+			document.getElementById("disconnection").innerHTML = 'Device disconnected';
+		}
 	}
 
 	

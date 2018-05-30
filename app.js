@@ -83,6 +83,7 @@ io.on('connection', function(socket){
 	console.log('a user connected');
 	socket.on('arduino-data', function(data) {
 		dataValues=data.split(',');
+		//console.log(dataValues[2]);
 
 		bpmPresent=0;
 		pulseMonitor=dataValues[0];
@@ -235,7 +236,9 @@ io.on('connection', function(socket){
 			minGSR = NaN;
 			maxGSR = NaN;
 		}
-		if(maxGSR - minGSR > 50 || (Date.now() > haveGSR + 30000 && maxGSR - minGSR > 0)) {
+
+		//console.log(Date.now() > haveGSR + 30000);
+		if(maxGSR - minGSR > 10 || ((Date.now() > haveGSR + 5000) && (maxGSR - minGSR > 0))) {
 			relativeGSRvalue=(gsrSensor-minGSR)/(maxGSR - minGSR);
 			gsrPresent=1;
 		}
@@ -252,11 +255,13 @@ io.on('connection', function(socket){
 
 		// Start calculating total scores
 		if(bpmPresent+gsrPresent) {
-			totalStressScore=100*((bpmPresent ? Math.max((beatsperminute-60)*10,0) : 0 )+ (gsrPresent ? 1 - relativeGSRvalue : 0)*(maxGSR - minGSR)*5)/(1000*bpmPresent+(maxGSR - minGSR)*5*gsrPresent);
+			totalStressScore=100*((bpmPresent ? Math.max((beatsperminute-60)*10,0) : 0 )+ (gsrPresent ? (1 - relativeGSRvalue)*(maxGSR - minGSR) : 0)*5)/(1000*bpmPresent+(gsrPresent ? (maxGSR - minGSR)*5*gsrPresent : 0));
 		}
 		else {
 			totalStressScore=NaN;
 		}
+		//console.log((gsrPresent ? 1 - relativeGSRvalue : 0)*(maxGSR - minGSR)*5);
+		//console.log(bpmPresent + ' , ' +  beatsperminute + ' , ' + totalStressScore);
 		//console.log(100*(bpmPresent*(beatsperminute-25)*10 + gsrPresent*relativeGSRvalue*500));
 
 		io.emit('update-data',{sensor: pulseMonitor, bpm: beatsperminute, hrv: heartRateVariability, gsr: gsrSensor, minGSR: minGSR, maxGSR: maxGSR, relativeGSR: relativeGSRvalue, stress: totalStressScore});
