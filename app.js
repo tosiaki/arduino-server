@@ -56,11 +56,15 @@ var deviationThreshold=20;
 
 var currentData;
 var latestData = [];
+var dataValues;
+var minLatest;
+var maxLatest;
 var average;
 var standardDeviation;
 var detectedRise=0;
 var riseTime;
 var heartbeats = [];
+var rrIntervals = [];
 var previousbeat;
 
 var beatsperminute;
@@ -85,6 +89,11 @@ io.on('connection', function(socket){
 				i--;
 			}
 		}
+		dataValues=latestData.map(latestData => latestData.value);
+		minLatest=Math.min.apply(null,dataValues);
+		maxLatest=Math.max.apply(null,dataValues);
+		console.log(minLatest + ' , ' + maxLatest)
+
 		for (i = 0; i < heartbeats.length; i++) {
 			if(heartbeats[i].time < Date.now() - 6000) {
 				heartbeats.splice(i,1);
@@ -92,7 +101,7 @@ io.on('connection', function(socket){
 			}
 		}
 		while(heartbeats.length>5) {
-			heartBeatTimes=latestData.map(heartbeats => heartbeats.time);
+			heartBeatTimes=heartbeats.map(heartbeats => heartbeats.time);
 			i = heartBeatTimes.indexOf(Math.min.apply(null, heartBeatTimes));
 			heartbeats.splice(i,1)
 		}
@@ -128,13 +137,13 @@ io.on('connection', function(socket){
 		//console.log(values);
 		//console.log(values.length + ' , ' + average + ' , ' + standardDeviation);
 		if(detectedRise==0) {
-			if(currentData > average + 1.6*standardDeviation && standardDeviation > deviationThreshold) {
+			if(currentData > 0.30*minLatest + 0.70*maxLatest && standardDeviation > deviationThreshold) {
 				detectedRise=1;
 				riseTime=Date.now();
 			}
 		}
 		else {
-			if(currentData < average + 0.5*standardDeviation) {
+			if(currentData < 0.50*minLatest + 0.50*maxLatest) {
 				if(Date.now() < riseTime + 500) {
 					var intervalTime = Date.now()-previousbeat;
 					if (intervalTime > 10000) {
