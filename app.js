@@ -1,16 +1,17 @@
 var createError = require('http-errors');
 var express = require('express');
 var app = express();
-var server = require('http').createServer(app);
-var io = require('socket.io').listen(server);
+app.set('port', process.env.PORT || 4200);
 
-//app.set('port', process.env.PORT || 4200);
+var server = app.listen(app.get('port')); //require('http').createServer(app);
+var io = require('socket.io')(server);
+console.log(app.get('port'))
+console.log("Express server listening on port " + app.get('port'));
 
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
-console.log(app.get('port'))
 app.set('views', path.join(__dirname, 'app_server', 'views'));
 app.set('view engine', 'jade');
 app.use(logger('dev'));
@@ -20,9 +21,8 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use("/bower",express.static(path.join(__dirname, 'bower_components')));
 
-server.listen(app.get('port'), function() {
-	console.log("Express server listening on port " + app.get('port'));
-})
+//server.listen(app.get('port'), function() {
+//})
 
 var currentdata;
 
