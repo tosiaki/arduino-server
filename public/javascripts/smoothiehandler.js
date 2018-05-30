@@ -1,10 +1,12 @@
 var sensordata = new TimeSeries();
 var beatsperminute = new TimeSeries();
+var heartratevariability = new TimeSeries();
 
 var socket = io('/')
 socket.on('update-data', function(data) {
 	sensordata.append(new Date().getTime(),data.sensor);
 	beatsperminute.append(new Date().getTime(),data.bpm);
+	heartratevariability.append(new Date().getTime(),data.hrv);
 	if (data.bpm>25 && data.bpm != NaN) {
 		document.getElementById("bpmindicator").innerHTML = 'Your current heart rate is ' + Math.round(data.bpm) + ' beats per minute.';
 		document.getElementById("disconnection").innerHTML = '';
@@ -28,12 +30,18 @@ socket.on('update-data', function(data) {
 		}
 	}
 	else {
-		document.getElementById("bpmindicator").innerHTML = 'The device is disconnected.';
+		document.getElementById("bpmindicator").innerHTML = 'No BPM signal.';
 		document.getElementById("stresslevel").innerHTML = '';
 		document.getElementById("disconnection").innerHTML = 'Device disconnected';
 		document.getElementById("green").style['background-color']='#bbb';
 		document.getElementById("yellow").style['background-color']='#bbb';
 		document.getElementById("red").style['background-color']='#bbb';
+	}
+	if(data.hrv) {
+		document.getElementById("hrvindicator").innerHTML = 'Your current heart rate variability is ' + Math.round(data.hrv) + ' beats per minute.';
+	}
+	else {
+		document.getElementById("hrvindicator").innerHTML = 'No HRV signal.';
 	}
 	//console.log(data);
 });
@@ -46,4 +54,8 @@ function createTimeline() {
 	var bpmchart = new SmoothieChart({responsive: true});
 	bpmchart.addTimeSeries(beatsperminute, { strokeStyle: 'rgba(0, 255, 0, 1)', fillStyle: 'rgba(0, 255, 0, 0.2)', lineWidth: 4 });
 	bpmchart.streamTo(document.getElementById("bpm"), 500);
+
+	var hrvchart = new SmoothieChart({responsive: true});
+	hrvchart.addTimeSeries(heartratevariability, { strokeStyle: 'rgba(0, 255, 0, 1)', fillStyle: 'rgba(0, 255, 0, 0.2)', lineWidth: 4 });
+	hrvchart.streamTo(document.getElementById("hrv"), 500);
 }

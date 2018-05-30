@@ -65,6 +65,8 @@ var detectedRise=0;
 var riseTime;
 var heartbeats = [];
 var rrIntervals = [];
+var averageInterval;
+var heartRateVariability;
 var previousbeat;
 
 var beatsperminute;
@@ -92,7 +94,7 @@ io.on('connection', function(socket){
 		dataValues=latestData.map(latestData => latestData.value);
 		minLatest=Math.min.apply(null,dataValues);
 		maxLatest=Math.max.apply(null,dataValues);
-		console.log(minLatest + ' , ' + maxLatest)
+		//console.log(minLatest + ' , ' + maxLatest)
 
 		for (i = 0; i < heartbeats.length; i++) {
 			if(heartbeats[i].time < Date.now() - 6000) {
@@ -126,6 +128,24 @@ io.on('connection', function(socket){
 			beatsperminute=NaN;
 		}
 
+		for (i = 0; i < rrIntervals.length; i++) {
+			if(rrIntervals[i].time < Date.now() - 20000) {
+				rrIntervals.splice(i,1);
+				i--;
+			}
+		}
+		if(rrIntervals.length>8) {
+			intervals=rrIntervals.map(rrIntervals => rrIntervals.interval);
+			//console.log(rrIntervals);
+			averageInterval=intervals.reduce(function(acc, val) { return acc + val; })/intervals.length;
+			heartRateVariability=Math.sqrt(intervals.map(function(interval) {
+			return (interval - averageInterval) * (interval - averageInterval);
+		}).reduce(function(acc, val) { return acc + val; })/(intervals.length));
+		}
+		else {
+			heartRateVariability=0;
+		}
+
 		values = latestData.map(latestData => latestData.value);
 		//console.log(values.reduce(function(acc, val) { return acc + val; }));
 		average = values.reduce(function(acc, val) { return acc + val; })/values.length;
@@ -146,10 +166,14 @@ io.on('connection', function(socket){
 			if(currentData < 0.50*minLatest + 0.50*maxLatest) {
 				if(Date.now() < riseTime + 500) {
 					var intervalTime = Date.now()-previousbeat;
-					if (intervalTime > 10000) {
+					if (intervalTime > 1500) {
 						intervalTime = NaN;
 					}
 					heartbeats.push({time: Date.now(), interval: intervalTime});
+					if(!isNaN(intervalTime)) {
+						rrIntervals.push({time: Date.now(), interval: intervalTime});
+						console.log(rrIntervals);
+					}
 					previousbeat=Date.now();
 					//console.log(heartbeats);
 				}
@@ -157,8 +181,8 @@ io.on('connection', function(socket){
 			}
 		}
 
-		//console.log(beatsperminute);
-		io.emit('update-data',{sensor: currentData, bpm: beatsperminute})
+		//console.log(currentData + ' , ' + beatsperminute + ' , ' + heartRateVariability);
+		io.emit('update-data',{sensor: currentData, bpm: beatsperminute, hrv: heartRateVariability})
 	})
 })
 
