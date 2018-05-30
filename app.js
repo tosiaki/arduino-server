@@ -220,7 +220,7 @@ io.on('connection', function(socket){
 			gsrLatestData=gsrLatest.map(gsrLatest => gsrLatest.resistance);
 			minLatestGSR=Math.min.apply(null,gsrLatestData);
 			maxLatestGSR=Math.max.apply(null,gsrLatestData);
-			if(maxLatestGSR-minLatestGSR > 20) {
+			if(maxLatestGSR-minLatestGSR > 35) {
 				gsrValues=[];
 				gsrLatest=[];
 				haveGSR = Date.now();
