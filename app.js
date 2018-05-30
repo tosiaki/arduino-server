@@ -69,17 +69,26 @@ var averageInterval;
 var heartRateVariability;
 var previousbeat;
 
+var haveGSR;
+var gsrValues = [];
+var gsrLatest = [];
+
 var beatsperminute;
+
+var bpmPresent;
+var hrvPresent;
+var gsrPresent;
 
 io.on('connection', function(socket){
 	console.log('a user connected');
 	socket.on('arduino-data', function(data) {
 		dataValues=data.split(',');
+
+		bpmPresent=0;
 		pulseMonitor=dataValues[0];
 		if(pulseMonitor) {
 			latestData.push({time: Date.now(),value: Number(pulseMonitor)});
 		}
-		gsrSensor=dataValues[1];
 		var i;
 		for (i = 0; i < latestData.length; i++) {
 			if (typeof(latestData[i]) == 'undefined') {
@@ -93,9 +102,9 @@ io.on('connection', function(socket){
 				i--;
 			}
 		}
-		dataValues=latestData.map(latestData => latestData.value);
-		minLatest=Math.min.apply(null,dataValues);
-		maxLatest=Math.max.apply(null,dataValues);
+		heartRateSensorData=latestData.map(latestData => latestData.value);
+		minLatest=Math.min.apply(null,heartRateSensorData);
+		maxLatest=Math.max.apply(null,heartRateSensorData);
 		//console.log(minLatest + ' , ' + maxLatest)
 
 		for (i = 0; i < heartbeats.length; i++) {
@@ -109,6 +118,7 @@ io.on('connection', function(socket){
 			i = heartBeatTimes.indexOf(Math.min.apply(null, heartBeatTimes));
 			heartbeats.splice(i,1)
 		}
+
 		if(heartbeats.length>3) {
 			heartBeatIntervals=heartbeats.map(heartbeats => heartbeats.interval);
 			for (i = 0; i < heartBeatIntervals.length; i++) {
@@ -118,6 +128,9 @@ io.on('connection', function(socket){
 			}
 			if(heartBeatIntervals.length>3) {
 				beatsperminute=60*1000*heartbeats.length/(heartBeatIntervals.reduce(function(acc, val) { return acc + val; }));
+				if(beatsperminute>=25) {
+					bpmPresent=1;
+				}
 				//console.log(heartBeatIntervals.length);
 				//console.log(heartBeatIntervals);
 				//console.log(heartBeatIntervals.reduce(function(acc, val) { return acc + val; }));
@@ -174,7 +187,7 @@ io.on('connection', function(socket){
 					heartbeats.push({time: Date.now(), interval: intervalTime});
 					if(!isNaN(intervalTime)) {
 						rrIntervals.push({time: Date.now(), interval: intervalTime});
-						console.log(rrIntervals);
+						//console.log(rrIntervals);
 					}
 					previousbeat=Date.now();
 					//console.log(heartbeats);
@@ -183,9 +196,70 @@ io.on('connection', function(socket){
 			}
 		}
 
+		// Start GSR data processing
+		gsrPresent=0;
+
+		gsrSensor=dataValues[1];
+		gsrValues.push({time: Date.now(), resistance: gsrSensor});
+		gsrLatest.push({time: Date.now(), resistance: gsrSensor});
+
+		if(gsrSensor>600) {
+			gsrValues=[];
+			gsrLatest=[];
+			haveGSR = Date.now();
+			//console.log('Emptying GSR array');
+		}
+		if(gsrValues.length) {
+			for (i = 0; i < gsrLatest.length; i++) {
+				if(gsrLatest[i].time < Date.now() - 2000) {
+					gsrLatest.splice(i,1);
+					i--;
+				}
+			}
+			gsrLatestData=gsrLatest.map(gsrLatest => gsrLatest.resistance);
+			minLatestGSR=Math.min.apply(null,gsrLatestData);
+			maxLatestGSR=Math.max.apply(null,gsrLatestData);
+			if(maxLatestGSR-minLatestGSR > 20) {
+				gsrValues=[];
+				gsrLatest=[];
+				haveGSR = Date.now();
+			}
+		}
+		if(gsrValues.length) {
+			gsrData=gsrValues.map(gsrValues => gsrValues.resistance);
+			minGSR=Math.min.apply(null,gsrData);
+			maxGSR=Math.max.apply(null,gsrData);
+			//console.log(minGSR + ' , ' + maxGSR);
+		}
+		else {
+			minGSR = NaN;
+			maxGSR = NaN;
+		}
+		if(maxGSR - minGSR > 50 || (Date.now() > haveGSR + 30000 && maxGSR - minGSR > 0)) {
+			relativeGSRvalue=(gsrSensor-minGSR)/(maxGSR - minGSR);
+			gsrPresent=1;
+		}
+		else {
+			relativeGSRvalue=NaN;
+		}
+
+		//console.log(gsrValues.length);
+
 		//console.log(currentData + ' , ' + beatsperminute + ' , ' + heartRateVariability);
 		//console.log(gsrSensor);
-		io.emit('update-data',{sensor: pulseMonitor, bpm: beatsperminute, hrv: heartRateVariability, gsr: gsrSensor})
+		//console.log(relativeGSRvalue);
+		//console.log(minGSR);
+
+		// Start calculating total scores
+		if(bpmPresent+gsrPresent) {
+			totalStressScore=100*((bpmPresent ? Math.max((beatsperminute-60)*10,0) : 0 )+ (gsrPresent ? 1 - relativeGSRvalue : 0)*(maxGSR - minGSR)*5)/(1000*bpmPresent+(maxGSR - minGSR)*5*gsrPresent);
+		}
+		else {
+			totalStressScore=NaN;
+		}
+		//console.log(100*(bpmPresent*(beatsperminute-25)*10 + gsrPresent*relativeGSRvalue*500));
+
+		io.emit('update-data',{sensor: pulseMonitor, bpm: beatsperminute, hrv: heartRateVariability, gsr: gsrSensor, minGSR: minGSR, maxGSR: maxGSR, relativeGSR: relativeGSRvalue, stress: totalStressScore});
 	})
 })
 
