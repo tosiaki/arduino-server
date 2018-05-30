@@ -164,10 +164,16 @@ io.on('connection', function(socket){
 
 		values = latestData.map(latestData => latestData.value);
 		//console.log(values.reduce(function(acc, val) { return acc + val; }));
-		average = values.reduce(function(acc, val) { return acc + val; })/values.length;
-		standardDeviation = Math.sqrt(values.map(function(value) {
-			return (value - average) * (value - average)
-		}).reduce(function(acc, val) { return acc + val; })/(values.length-1));
+		if(values.length) {
+			average = values.reduce(function(acc, val) { return acc + val; })/values.length;
+			standardDeviation = Math.sqrt(values.map(function(value) {
+				return (value - average) * (value - average)
+			}).reduce(function(acc, val) { return acc + val; })/(values.length-1));
+		}
+		else {
+			average=0;
+			standardDeviation=0;
+		}
 
 		//console.log(typeof(average));
 		//console.log(values);
@@ -220,7 +226,7 @@ io.on('connection', function(socket){
 			gsrLatestData=gsrLatest.map(gsrLatest => gsrLatest.resistance);
 			minLatestGSR=Math.min.apply(null,gsrLatestData);
 			maxLatestGSR=Math.max.apply(null,gsrLatestData);
-			if(maxLatestGSR-minLatestGSR > 70) {
+			if(maxLatestGSR-minLatestGSR > 50) {
 				gsrValues=[];
 				gsrLatest=[];
 				haveGSR = Date.now();
