@@ -2,7 +2,7 @@ extends layout
 
 block content
   h1= title
-  h3 Sensor data
+  h3 Pulse monitor
   canvas#sensorsignal(style='width:100%; height:200px')
   h3 Beats per minute
   canvas#bpm(style='width:100%; height:200px')
@@ -10,6 +10,9 @@ block content
   h3 Heart rate variability
   canvas#hrv(style='width:100%; height:200px')
   #hrvindicator
+  h3 Galvanic skin response
+  canvas#gsr(style='width:100%; height:200px')
+  #gsrindicator
   h3 Stress indicator
   .lightcontainer Normal/low stress
     span#green.light

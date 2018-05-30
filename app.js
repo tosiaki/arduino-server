@@ -74,14 +74,16 @@ var beatsperminute;
 io.on('connection', function(socket){
 	console.log('a user connected');
 	socket.on('arduino-data', function(data) {
-		currentData=data
-		if(currentData) {
-			latestData.push({time: Date.now(),value: Number(currentData)});
+		dataValues=data.split(',');
+		pulseMonitor=dataValues[0];
+		if(pulseMonitor) {
+			latestData.push({time: Date.now(),value: Number(pulseMonitor)});
 		}
+		gsrSensor=dataValues[1];
 		var i;
 		for (i = 0; i < latestData.length; i++) {
 			if (typeof(latestData[i]) == 'undefined') {
-				console.log(currentData)
+				console.log(pulseMonitor)
 			}
 			else if (latestData[i].value > 1000) {
 				console.log(latestData[i].value)
@@ -157,13 +159,13 @@ io.on('connection', function(socket){
 		//console.log(values);
 		//console.log(values.length + ' , ' + average + ' , ' + standardDeviation);
 		if(detectedRise==0) {
-			if(currentData > 0.30*minLatest + 0.70*maxLatest && standardDeviation > deviationThreshold) {
+			if(pulseMonitor > 0.30*minLatest + 0.70*maxLatest && standardDeviation > deviationThreshold) {
 				detectedRise=1;
 				riseTime=Date.now();
 			}
 		}
 		else {
-			if(currentData < 0.50*minLatest + 0.50*maxLatest) {
+			if(pulseMonitor < 0.50*minLatest + 0.50*maxLatest) {
 				if(Date.now() < riseTime + 500) {
 					var intervalTime = Date.now()-previousbeat;
 					if (intervalTime > 1500) {
@@ -182,7 +184,8 @@ io.on('connection', function(socket){
 		}
 
 		//console.log(currentData + ' , ' + beatsperminute + ' , ' + heartRateVariability);
-		io.emit('update-data',{sensor: currentData, bpm: beatsperminute, hrv: heartRateVariability})
+		//console.log(gsrSensor);
+		io.emit('update-data',{sensor: pulseMonitor, bpm: beatsperminute, hrv: heartRateVariability, gsr: gsrSensor})
 	})
 })
 

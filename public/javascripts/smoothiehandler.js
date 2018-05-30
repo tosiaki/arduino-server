@@ -1,12 +1,14 @@
 var sensordata = new TimeSeries();
 var beatsperminute = new TimeSeries();
 var heartratevariability = new TimeSeries();
+var galvanicskinresponse = new TimeSeries();
 
 var socket = io('/')
 socket.on('update-data', function(data) {
 	sensordata.append(new Date().getTime(),data.sensor);
 	beatsperminute.append(new Date().getTime(),data.bpm);
 	heartratevariability.append(new Date().getTime(),data.hrv);
+	galvanicskinresponse.append(new Date().getTime(),data.gsr);
 	if (data.bpm>25 && data.bpm != NaN) {
 		document.getElementById("bpmindicator").innerHTML = 'Your current heart rate is ' + Math.round(data.bpm) + ' beats per minute.';
 		document.getElementById("disconnection").innerHTML = '';
@@ -43,6 +45,15 @@ socket.on('update-data', function(data) {
 	else {
 		document.getElementById("hrvindicator").innerHTML = 'No HRV signal.';
 	}
+
+	if(data.gsr) {
+		document.getElementById("gsrindicator").innerHTML = 'Your galvanic skin response is ' + Math.round(data.gsr);
+	}
+	else {
+		document.getElementById("gsrindicator").innerHTML = 'No GSR signal.';
+	}
+
+	galvanicskinresponse
 	//console.log(data);
 });
 
@@ -58,4 +69,8 @@ function createTimeline() {
 	var hrvchart = new SmoothieChart({responsive: true});
 	hrvchart.addTimeSeries(heartratevariability, { strokeStyle: 'rgba(0, 255, 0, 1)', fillStyle: 'rgba(0, 255, 0, 0.2)', lineWidth: 4 });
 	hrvchart.streamTo(document.getElementById("hrv"), 500);
+
+	var gsrchart = new SmoothieChart({responsive: true});
+	gsrchart.addTimeSeries(galvanicskinresponse, { strokeStyle: 'rgba(0, 255, 0, 1)', fillStyle: 'rgba(0, 255, 0, 0.2)', lineWidth: 4 });
+	gsrchart.streamTo(document.getElementById("gsr"), 500);
 }
