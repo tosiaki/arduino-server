@@ -4,7 +4,7 @@ var app = express();
 var server = require('http').createServer(app);
 var io = require('socket.io').listen(server);
 
-app.set('port', process.env.PORT || 4200);
+//app.set('port', process.env.PORT || 4200);
 
 var path = require('path');
 var cookieParser = require('cookie-parser');
