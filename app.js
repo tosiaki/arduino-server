@@ -70,6 +70,7 @@ var heartRateVariability;
 var previousbeat;
 
 var haveGSR;
+var gsrStartTime;
 var gsrValues = [];
 var gsrLatest = [];
 
@@ -207,35 +208,45 @@ io.on('connection', function(socket){
 		gsrPresent=0;
 
 		gsrSensor=dataValues[1];
-		gsrValues.push({time: Date.now(), resistance: gsrSensor});
-		gsrLatest.push({time: Date.now(), resistance: gsrSensor});
 
 		if(gsrSensor>600) {
-			gsrValues=[];
 			gsrLatest=[];
-			haveGSR = Date.now();
+			gsrStartTime = Date.now();
 			//console.log('Emptying GSR array');
 		}
-		if(gsrValues.length) {
+		else {
+			gsrLatest.push({time: Date.now(), resistance: gsrSensor});
+		}
+
+		if(gsrLatest.length) {
+			// Remove values before 2 seconds ago
 			for (i = 0; i < gsrLatest.length; i++) {
 				if(gsrLatest[i].time < Date.now() - 2000) {
 					gsrLatest.splice(i,1);
 					i--;
 				}
 			}
+
+			// Find and test min and max of latest
 			gsrLatestData=gsrLatest.map(gsrLatest => gsrLatest.resistance);
 			minLatestGSR=Math.min.apply(null,gsrLatestData);
 			maxLatestGSR=Math.max.apply(null,gsrLatestData);
-			if(maxLatestGSR-minLatestGSR > 50) {
-				gsrValues=[];
+			if(maxLatestGSR-minLatestGSR > 60) {
 				gsrLatest=[];
-				haveGSR = Date.now();
+				gsrStartTime = Date.now();
 			}
 		}
-		if(gsrValues.length) {
-			gsrData=gsrValues.map(gsrValues => gsrValues.resistance);
-			minGSR=Math.min.apply(null,gsrData);
-			maxGSR=Math.max.apply(null,gsrData);
+
+		// Set min and max GSR for this round
+		if(gsrLatest.length && (Date.now() > gsrStartTime + 4000)) {
+			if(isNan(minGSR)) {
+				minGSR=gsrSensor;
+				maxGSR=gsrSensor;
+			}
+			else {
+				minGSR=Math.min.apply(minGSR,gsrSensor);
+				maxGSR=Math.max.apply(minGSR,gsrSensor);
+			}
 			//console.log(minGSR + ' , ' + maxGSR);
 		}
 		else {
@@ -244,7 +255,9 @@ io.on('connection', function(socket){
 		}
 
 		//console.log(Date.now() > haveGSR + 30000);
-		if(maxGSR - minGSR > 10 || ((Date.now() > haveGSR + 5000) && (maxGSR - minGSR > 0))) {
+
+		// Calculate GSR score
+		if(maxGSR - minGSR > 10 || ((Date.now() > gsrStartTime + 8000) && (maxGSR - minGSR > 0))) {
 			relativeGSRvalue=(gsrSensor-minGSR)/(maxGSR - minGSR);
 			gsrPresent=1;
 		}
