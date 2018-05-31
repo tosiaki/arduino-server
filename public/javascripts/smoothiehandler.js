@@ -16,7 +16,7 @@ socket.on('update-data', function(data) {
 	var noHeartRate=0;
 	var noGSR=0;
 	//console.log(data.stress);
-	if (data.bpm>25 && data.bpm != NaN) {
+	if (data.bpm>25) {
 		document.getElementById("bpmindicator").innerHTML = 'Your current heart rate is ' + Math.round(data.bpm) + ' beats per minute.';
 	}
 	else if(data.numBeats<3) {
@@ -67,23 +67,35 @@ socket.on('update-data', function(data) {
 	if(data.stress !== null) {
 		document.getElementById("stressindicator").innerHTML = "The stress level score is currently " + Math.round(data.stress) + ".";
 		if (data.stress>60) {
-			document.getElementById("stresslevel").innerHTML = 'High stress';
+			var stressleveltext='High stress<br />';
 			document.getElementById("green").style['background-color']='#bbb';
 			document.getElementById("yellow").style['background-color']='#bbb';
 			document.getElementById("red").style['background-color']='#fbb';
 		}
 		else if (data.stress>30) {
-			document.getElementById("stresslevel").innerHTML = 'Medium stress';
+			var stressleveltext='Medium stress<br />';
 			document.getElementById("green").style['background-color']='#bbb';
 			document.getElementById("yellow").style['background-color']='#ffb';
 			document.getElementById("red").style['background-color']='#bbb';
 		}
 		else {
-			document.getElementById("stresslevel").innerHTML = 'Normal or low stress';
+			var stressleveltext='Normal or low stress<br />';
 			document.getElementById("green").style['background-color']='#bfb';
 			document.getElementById("yellow").style['background-color']='#bbb';
 			document.getElementById("red").style['background-color']='#bbb';
 		}
+		if(data.bpm>25) {
+			if(data.minGSR !== null) {
+				stressleveltext+="Currently using both BPM and GSR data.";
+			}
+			else {
+				stressleveltext+="Currently using only BPM data.";
+			}
+		}
+		else if(data.minGSR !== null) {
+			stressleveltext+="Currently using only GSR data."
+		}
+		document.getElementById("stresslevel").innerHTML = stressleveltext;
 	}
 	else {
 		document.getElementById("stressindicator").innerHTML = "Stress level score is not available.";
