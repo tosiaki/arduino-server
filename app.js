@@ -241,8 +241,8 @@ io.on('connection', function(socket){
 				maxGSR=gsrSensor;
 			}
 			else {
-				minGSR=Math.min.apply(minGSR,gsrSensor);
-				maxGSR=Math.max.apply(minGSR,gsrSensor);
+				minGSR=Math.min(minGSR,gsrSensor);
+				maxGSR=Math.max(minGSR,gsrSensor);
 			}
 			//console.log(minGSR + ' , ' + maxGSR);
 		}
@@ -281,7 +281,7 @@ io.on('connection', function(socket){
 		//console.log(bpmPresent + ' , ' +  beatsperminute + ' , ' + totalStressScore);
 		//console.log(100*(bpmPresent*(beatsperminute-25)*10 + gsrPresent*relativeGSRvalue*500));
 
-		io.emit('update-data',{sensor: pulseMonitor, bpm: beatsperminute, hrv: heartRateVariability, gsr: gsrSensor, minGSR: minGSR, maxGSR: maxGSR, relativeGSR: relativeGSRvalue, stress: totalStressScore});
+		io.emit('update-data',{sensor: pulseMonitor, numBeats: heartbeats.length, bpm: beatsperminute, hrv: heartRateVariability, gsr: gsrSensor, minGSR: minGSR, maxGSR: maxGSR, relativeGSR: relativeGSRvalue, stress: totalStressScore});
 	})
 })
 

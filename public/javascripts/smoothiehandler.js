@@ -19,16 +19,22 @@ socket.on('update-data', function(data) {
 	if (data.bpm>25 && data.bpm != NaN) {
 		document.getElementById("bpmindicator").innerHTML = 'Your current heart rate is ' + Math.round(data.bpm) + ' beats per minute.';
 	}
-	else {
+	else if(data.numBeats<3) {
 		document.getElementById("bpmindicator").innerHTML = 'No BPM signal.';
 		document.getElementById("stresslevel").innerHTML = '';
 		noHeartRate=1;
 	}
+	else {
+		document.getElementById("bpmindicator").innerHTML = 'BPM signal currently in standby.';
+	}
 	if(data.hrv) {
 		document.getElementById("hrvindicator").innerHTML = 'Your current heart rate variability is ' + Math.round(data.hrv) + ' beats per minute.';
 	}
-	else {
+	else if(data.numBeats<3) {
 		document.getElementById("hrvindicator").innerHTML = 'No HRV signal.';
+	}
+	else {
+		document.getElementById("hrvindicator").innerHTML = 'HRV signal currently in standby.';
 	}
 
 	if(data.gsr) {
@@ -49,9 +55,12 @@ socket.on('update-data', function(data) {
 		}
 		document.getElementById("relativeGSRindicator").innerHTML = relativeGSRText;
 	}
-	else {
+	else if(data.gsr>600) {
 		document.getElementById("relativeGSRindicator").innerHTML = "The GSR is not currently securely connected.";
 		noGSR=1;
+	}
+	else {
+		document.getElementById("relativeGSRindicator").innerHTML = "The GSR is currently in standby."
 	}
 
 	document.getElementById("disconnection").innerHTML = '';
