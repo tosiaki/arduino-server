@@ -4,7 +4,6 @@ var app = express();
 
 //console.log(process.env.PORT);
 app.set('port', process.env.PORT || 3000)
-console.log(app.get('port'));
 var server = app.listen(app.get('port'), function() {
 	console.log("Express server listening on port " + app.get('port'));
 }); //require('http').createServer(app);
@@ -69,9 +68,7 @@ var averageInterval;
 var heartRateVariability;
 var previousbeat;
 
-var haveGSR;
 var gsrStartTime;
-var gsrValues = [];
 var gsrLatest = [];
 
 var beatsperminute;
@@ -81,7 +78,8 @@ var hrvPresent;
 var gsrPresent;
 
 io.on('connection', function(socket){
-	console.log('a user connected');
+	var address = socket.handshake.address;
+	console.log('New connection from ' + address.address + ':' + address.port);
 	socket.on('arduino-data', function(data) {
 		dataValues=data.split(',');
 		//console.log(dataValues[2]);
@@ -205,8 +203,6 @@ io.on('connection', function(socket){
 		}
 
 		// Start GSR data processing
-		gsrPresent=0;
-
 		gsrSensor=dataValues[1];
 
 		if(gsrSensor>600) {
@@ -263,6 +259,7 @@ io.on('connection', function(socket){
 		}
 		else {
 			relativeGSRvalue=NaN;
+			gsrPresent=0;
 		}
 
 		//console.log(gsrValues.length);
