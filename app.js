@@ -236,7 +236,7 @@ io.on('connection', function(socket){
 
 		// Set min and max GSR for this round
 		if(gsrLatest.length && (Date.now() > gsrStartTime + 4000)) {
-			if(isNan(minGSR)) {
+			if(isNaN(minGSR)) {
 				minGSR=gsrSensor;
 				maxGSR=gsrSensor;
 			}
