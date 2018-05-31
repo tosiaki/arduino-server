@@ -78,8 +78,9 @@ var hrvPresent;
 var gsrPresent;
 
 io.on('connection', function(socket){
-	var address = socket.handshake.address;
-	console.log('New connection from ' + address.address + ':' + address.port);
+	var socketId = socket.id;
+	var clientIp = socket.request.connection.remoteAddress;
+	console.log('New connection from ' + clientIp);
 	socket.on('arduino-data', function(data) {
 		dataValues=data.split(',');
 		//console.log(dataValues[2]);
